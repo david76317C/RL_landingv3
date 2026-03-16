@@ -1,7 +1,25 @@
-![CI](https://github.com/emiliomunozai/rl_games/actions/workflows/ci.yml/badge.svg?branch=main)
+# Lunar Lander v3 - Reinforcement Learning
 
 A hands-on repo for understanding how Reinforcement Learning works.
-Train, inspect, and visualise RL agents on [LunarLander-v3](https://gymnasium.farama.org/environments/box2d/lunar_lander/) (or any other Gymnasium environment).
+Train, inspect, and visualise RL agents on [LunarLander-v3](https://gymnasium.farama.org/environments/box2d/lunar_lander/).
+
+## 🚀 Training Results
+
+Here are the visual results of the trained agents. You can find more captures in the `bestResults/` directory.
+
+| Algorithm | Performance Preview | Best Screenshots |
+|:---:|:---:|:---:|
+| **Tabular Q-Learning** | ![QL Preview](./bestResults/qlearning/qlearning_0.JPG) | [View Gallery](./bestResults/qlearning/) |
+| **Deep Q-Network (DQN)** | ![DQN Preview](./bestResults/dqn/dqn_0.JPG) | [View Gallery](./bestResults/dqn/) |
+
+---
+
+## 📚 Understanding the Project
+
+Inside the [`Understanding/`](./Understanding/) folder, you will find a detailed PDF document:
+* **[Entrenamiento LunarLander-v3.pdf](./Understanding/Entrenamiento%20LunarLander-v3.pdf)**: A comprehensive guide written in my own words explaining the core logic and the step-by-step training process for both Q-Learning and DQN.
+
+---
 
 ## LunarLander-v3 environment
 
@@ -52,7 +70,7 @@ The episode ends when the lander crashes, lands, or after **1000 time steps** (t
 ### The core idea
 
 An RL agent interacts with an **environment** in discrete time steps.
-At each step it observes a **state** $s$, picks an **action** $a$, receives a **reward** $r$, and transitions to a new state $s'$.
+At each step it observes a **state** $s$, picks an **action** $a$, receives a **reward** $r$, and transitions to a new state $s^\prime$.
 The goal is to learn a **policy** $\pi(s) \to a$ that maximises the total (discounted) reward over time.
 
 ### Q-values and the Bellman equation
@@ -60,9 +78,7 @@ The goal is to learn a **policy** $\pi(s) \to a$ that maximises the total (disco
 A **Q-value** $Q(s, a)$ estimates the expected cumulative reward of taking action $a$ in state $s$ and then following the optimal policy.
 The optimal Q-values satisfy the **Bellman optimality equation**:
 
-$$
-Q^*(s, a) = r + \gamma \max_{a'} Q^*(s', a')
-$$
+$$ Q(s, a) = r + \gamma \max_{a'} Q(s', a') $$
 
 where $\gamma \in [0, 1]$ is the **discount factor** (how much the agent cares about future vs. immediate rewards).
 
@@ -70,18 +86,16 @@ where $\gamma \in [0, 1]$ is the **discount factor** (how much the agent cares a
 
 When the state and action spaces are small (or can be discretized), we store Q-values in a table and update them after every transition:
 
-$$
-Q(s, a) \leftarrow Q(s, a) + \alpha \bigl[ r + \gamma \max_{a'} Q(s', a') - Q(s, a) \bigr]
-$$
+$$Q(s, a) \leftarrow Q(s, a) + \alpha \bigl[ r + \gamma \max_{a'} Q(s', a') - Q(s, a) \bigr]$$
 
-- $\alpha$ (learning rate) — how fast we update.
-- **$\varepsilon$-greedy** exploration — with probability $\varepsilon$ pick a random action, otherwise pick $\arg\max_a Q(s, a)$. $\varepsilon$ decays over time so the agent gradually shifts from exploring to exploiting.
+- $\alpha$ (learning rate): controls how much new information overrides old information.
+- **$\epsilon$-greedy exploration**: with probability $\epsilon$, the agent picks a random action; otherwise, it picks $\arg\max_a Q(s, a)$. The value of $\epsilon$ decays over time to transition from exploration to exploitation.
 
-> See `src/rl_games/agents/qlearning.py` for a complete tabular implementation.
+
 
 ### Deep Q-Network (DQN)
 
-When the state space is continuous (like the 8-dimensional LunarLander observation), a table no longer works.
+When the state space is continuous, a table no longer works.
 **DQN** replaces the table with a neural network $Q_\theta(s, a)$ and introduces two key tricks:
 
 | Trick | Why |
@@ -91,8 +105,8 @@ When the state space is continuous (like the 8-dimensional LunarLander observati
 
 Training step (one gradient update):
 
-1. Sample a mini-batch $\{(s, a, r, s', \text{done})\}$ from the replay buffer.
-2. Compute targets: $y = r + \gamma \cdot \max_{a'} Q_{\text{target}}(s', a') \cdot (1 - \text{done})$.
+1. Sample a mini-batch $\{(s, a, r, s^\prime, \text{done})\}$ from the replay buffer.
+2. Compute targets: $y = r + \gamma \cdot \max_{a^\prime} Q_{\text{target}}(s^\prime, a^\prime) \cdot (1 - \text{done})$.
 3. Minimise MSE between $Q_\theta(s, a)$ and $y$.
 
 > See `src/rl_games/agents/dqn.py` for a from-scratch PyTorch implementation where every component (network, replay buffer, training loop) is visible and editable.
@@ -195,12 +209,21 @@ rlgames delete dqn
 
 ## Project structure
 
+## Project structure
+
 ```
 src/rl_games/
-├── cli.py                  # CLI entry point
-└── agents/
-    ├── qlearning.py        # Tabular Q-Learning agent
-    └── dqn.py              # DQN agent from scratch (PyTorch)
+├── Understanding/
+│   └── Entrenamiento LunarLander-v3.pdf  # Detailed explanation of algorithms
+├── bestResults/
+│   ├── dqn/                             # Screenshot gallery for DQN agent
+│   └── qlearning/                       # Screenshot gallery for Tabular agent
+├── saves/                               # Trained model checkpoints (.pkl / .pt)
+└── src/rl_games/
+    ├── cli.py                           # CLI entry point
+    └── agents/
+        ├── qlearning.py                 # Tabular Q-Learning implementation
+        └── dqn.py                       # DQN PyTorch implementation
 ```
 
 Saves are written to `saves/` in the working directory.
