@@ -209,8 +209,6 @@ rlgames delete dqn
 
 ## Project structure
 
-## Project structure
-
 ```
 src/rl_games/
 ├── Understanding/
